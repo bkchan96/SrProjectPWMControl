@@ -3,10 +3,10 @@
 module pwm (clk, duty_in, out);
     input clk;
     input [25:0] duty_in;
-    output reg out;
+    output out;
     
     localparam rollover = 2000000;
-    reg [25:0] counter;
+    reg [25:0] counter = 0;
     
     always @(posedge clk) begin
         if (counter == rollover)
@@ -16,11 +16,6 @@ module pwm (clk, duty_in, out);
     end
     
     //original 240000 and 50000
-    always @(counter) begin
-        if (counter < duty_in)
-            out <= 1;
-        else
-            out <= 0;
-    end
+    assign out = (counter < duty_in) ? 1'b1 : 1'b0;
     
 endmodule
