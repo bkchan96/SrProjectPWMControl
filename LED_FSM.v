@@ -58,6 +58,8 @@ module LED_FSM(clk, hand, r, g);
                 r = 1'b0;
                 g = 1'b0;
                 if (hand == 2'b11)
+                    NS = s1;
+                else if (hand == 2'b01)
                     NS = s2;
                 else
                     NS = s1;
@@ -68,6 +70,8 @@ module LED_FSM(clk, hand, r, g);
                 g = 1'b0;
                 if (hand == 2'b11)
                     NS = s3;
+                else if (hand == 2'b01)
+                    NS = s2;
                 else
                     NS = s2;
             end      
@@ -76,9 +80,9 @@ module LED_FSM(clk, hand, r, g);
                 r = 1'b0;
                 g = 1'b0;
                 if (hand == 2'b11)
-                    NS = s4;
-                else
                     NS = s3;
+                else
+                    NS = s4;
             end      
             s4: begin
                 counter_rst = 0;
