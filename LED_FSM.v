@@ -20,10 +20,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module LED_FSM(clk, hand, r, g);
+module LED_FSM(clk, hand, r, g, aud_out);
     input clk;
     input [1:0] hand;
-    output reg r, g;
+    output reg r, g, aud_out;
     
     // declare slow clock signal
     wire slowclk;
@@ -52,6 +52,11 @@ module LED_FSM(clk, hand, r, g);
         PS <= NS;
     end
     
+    // instantiate frequencies for audio output
+    wire freq730, freq950;
+    slowclk #(100_000_000, 730) u_slowclk_730(.clk(clk), .reset(), .slowclk(freq730));
+    slowclk #(100_000_000, 950) u_slowclk_950(.clk(clk), .reset(), .slowclk(freq950));
+    
     // combinational logic for Moore FSM
     always @* begin
         case (PS)
@@ -59,6 +64,7 @@ module LED_FSM(clk, hand, r, g);
                 counter_rst = 1;
                 r = 1'b1;
                 g = 1'b0;
+                aud_out = 1'b0;
                 if (hand == 2'b11)
                     NS = s1;
                 else
@@ -68,6 +74,7 @@ module LED_FSM(clk, hand, r, g);
                 counter_rst = 1;
                 r = 1'b0;
                 g = 1'b0;
+                aud_out = freq730;
                 if (hand == 2'b11)
                     NS = s1;
                 else if (hand == 2'b01)
@@ -79,6 +86,7 @@ module LED_FSM(clk, hand, r, g);
                 counter_rst = 1;
                 r = 1'b1;
                 g = 1'b0;
+                aud_out = 1'b0;
                 if (hand == 2'b11)
                     NS = s3;
                 else if (hand == 2'b01)
@@ -90,6 +98,7 @@ module LED_FSM(clk, hand, r, g);
                 counter_rst = 1;
                 r = 1'b0;
                 g = 1'b0;
+                aud_out = freq730;
                 if (hand == 2'b11)
                     NS = s3;
                 else
@@ -99,6 +108,7 @@ module LED_FSM(clk, hand, r, g);
                 counter_rst = 0;
                 r = 1'b1;
                 g = 1'b0;
+                aud_out = 1'b0;
                 if (counter == 50)
                     NS = s5;
                 else
@@ -108,12 +118,14 @@ module LED_FSM(clk, hand, r, g);
                 counter_rst = 1;
                 r = 1'b1;
                 g = 1'b0;
+                aud_out = 1'b0;
                 NS = s6;
             end
             s6: begin
                 counter_rst = 0;
                 r = 1'b0;
                 g = 1'b1;
+                aud_out = freq950;
                 if (counter == 300)
                     NS = s0;
                 else

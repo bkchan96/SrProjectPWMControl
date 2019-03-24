@@ -20,11 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module top(clk, manual_on, sw, rpi, out, r, g);
+module top(clk, manual_on, sw, rpi, out, r, g, aud_out);
     input clk, manual_on;
     input [1:0] sw;
     input [1:0] rpi;
-    output r, g;
+    output r, g, aud_out;
     output [2:0] out;
     
     // decode input from raspberry pi
@@ -49,6 +49,6 @@ module top(clk, manual_on, sw, rpi, out, r, g);
     pwm u_pwm_1(.clk(clk), .duty_in(duty1), .out(out[1]));      //#(145000)
     pwm u_pwm_2(.clk(clk), .duty_in(duty2), .out(out[2]));      //#(145000)
     
-    LED_FSM u_LED_FSM(.clk(clk), .hand(rpi), .r(r), .g(g));
+    LED_FSM u_LED_FSM(.clk(clk), .hand(rpi), .r(r), .g(g), .aud_out(aud_out));
     
 endmodule
