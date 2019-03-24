@@ -25,23 +25,34 @@ module LED_FSM(clk, hand, r, g);
     input [1:0] hand;
     output reg r, g;
     
+    // declare slow clock signal
+    wire slowclk;
+    
+    // instantiate a slow clk for state machine
+    slowclk #(100_000_000, 100) u_slowclk(.clk(clk), .reset(), .slowclk(slowclk));
+    
     // declare state types and state registers
-    parameter s0 = 3'b000, s1 = 3'b001, s2 = 3'b010, s3 = 3'b011, s4 = 3'b100;
+    parameter s0 = 3'b000, s1 = 3'b001, s2 = 3'b010, s3 = 3'b011, s4 = 3'b100, s5 = 3'b101, s6 = 3'b110;
     reg [2:0] PS = s0, NS;
     
     // declare counter
     reg [28:0] counter = 0;
     reg counter_rst;
     
-    //flip flops of FSM
-    always @(posedge clk) begin
-        PS <= NS;
+    // counter for FSM
+    always @(posedge slowclk) begin
         if (counter_rst)
             counter <= 0;
         else
             counter <= counter + 1;
     end
     
+    // flip flops for FSM
+    always @ (posedge slowclk) begin
+        PS <= NS;
+    end
+    
+    // combinational logic for Moore FSM
     always @* begin
         case (PS)
             s0: begin
@@ -83,15 +94,30 @@ module LED_FSM(clk, hand, r, g);
                     NS = s3;
                 else
                     NS = s4;
-            end      
+            end  
             s4: begin
+                counter_rst = 0;
+                r = 1'b1;
+                g = 1'b0;
+                if (counter == 50)
+                    NS = s5;
+                else
+                    NS = s4;
+            end
+            s5: begin
+                counter_rst = 1;
+                r = 1'b1;
+                g = 1'b0;
+                NS = s6;
+            end
+            s6: begin
                 counter_rst = 0;
                 r = 1'b0;
                 g = 1'b1;
-                if (counter == 300_000_000)
+                if (counter == 300)
                     NS = s0;
                 else
-                    NS = s4;
+                    NS = s6;
             end  
         endcase
     end
